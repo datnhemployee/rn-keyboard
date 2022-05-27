@@ -1,22 +1,33 @@
-import { NativeModules, Platform } from 'react-native';
+import React from 'react';
+import { AppRegistry } from 'react-native';
+import RnKeyboardApp from './app';
+import * as Manager from './manager';
+import * as RnKeyboardModule from './module';
+import RnKeyboardInput from './input';
 
-const LINKING_ERROR =
-  `The package 'rn-keyboard' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo managed workflow\n';
+export const registerKeyboard = Manager.registerKeyboard;
+export const registerComponent = () =>
+  AppRegistry.registerComponent('RnKeyboard', () => RnKeyboardApp);
+export const connect = (App: React.ElementType) => (props: {}) => {
+  const NativeKeyboard = () => {
+    React.useEffect(() => {
+      RnKeyboardModule.init();
+    }, []);
+    return null;
+  };
 
-const RnKeyboard = NativeModules.RnKeyboard
-  ? NativeModules.RnKeyboard
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+  return (
+    <>
+      <App {...props} />
+      <NativeKeyboard />
+    </>
+  );
+};
+export { RnKeyboardInput };
 
-export function multiply(a: number, b: number): Promise<number> {
-  return RnKeyboard.multiply(a, b);
-}
+export default {
+  registerKeyboard,
+  registerComponent,
+  connect,
+  Input: RnKeyboardInput,
+};

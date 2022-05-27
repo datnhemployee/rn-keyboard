@@ -29,7 +29,8 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "bootstrap": "yarn example && yarn && yarn pods",
+    "gradlew-clean-macos": "cd android && ./gradlew clean && cd .."
   },
   "keywords": [
     "react-native",
@@ -143,5 +144,8 @@
         }
       ]
     ]
+  },
+  "resolutions": {
+    "@types/react": "17.0.39"
   }
 }
