@@ -30,6 +30,7 @@ import com.facebook.react.views.textinput.BlurEvent;
 import com.facebook.react.views.textinput.EndEditingEvent;
 import com.facebook.react.views.textinput.FocusEvent;
 import com.facebook.react.views.textinput.ReactEditText;
+import com.facebook.react.views.textinput.SubmitEvent;
 import com.facebook.react.views.view.ReactViewGroup;
 
 import java.util.HashMap;
@@ -99,19 +100,22 @@ public class RnKeyboardModule extends ReactContextBaseJavaModule {
 
     Log.d("#getViewById: ", String.valueOf(id));
 
-    uii = this.getReactApplicationContext()
-      .getNativeModule( UIManagerModule.class )
-      .getUIImplementation()
-      .getUIViewOperationQueue();
+    for (int attemp = 0; attemp < 10; attemp++) {
+      uii = this.getReactApplicationContext()
+        .getNativeModule( UIManagerModule.class )
+        .getUIImplementation()
+        .getUIViewOperationQueue();
 
-    try {
-      view = uii
-        .getNativeViewHierarchyManager()
-        .resolveView(id);
-      Log.d("#view: ", String.valueOf(view));
-    } catch (IllegalViewOperationException ex) {
-      Log.e("#getViewById: ", ex.getMessage());
+      try {
+        view = uii
+          .getNativeViewHierarchyManager()
+          .resolveView(id);
+        Log.d("#view: ", String.valueOf(view));
+      } catch (IllegalViewOperationException ex) {
+        Log.e("#getViewById: ", ex.getMessage());
+      }
     }
+
     return view;
   }
 
@@ -175,6 +179,7 @@ public class RnKeyboardModule extends ReactContextBaseJavaModule {
 
               inputEventDispatcher.dispatchEvent(new FocusEvent(input.getId()));
               this.eventEmitter.sendEvent(RnKeyboardEventEmitter.KEYBOARD_SHOW, keyboardEventInfo);
+              Log.d("# Show keyboard: ", "show keyboard with input id = "+inputId);
               return;
             }
 
@@ -185,7 +190,12 @@ public class RnKeyboardModule extends ReactContextBaseJavaModule {
             inputEventDispatcher.dispatchEvent(
               new EndEditingEvent(
                 input.getId(), input.getText().toString()));
+            boolean isBlurOnSubmit = input.getBlurOnSubmit();
+            if (isBlurOnSubmit) {
+              input.clearFocus();
+            }
             this.eventEmitter.sendEvent(RnKeyboardEventEmitter.KEYBOARD_HIDE, keyboardEventInfo);
+            Log.d("# Hide keyboard: ", "hide keyboard with input id = "+inputId);
           } catch (Exception ex) {
             Log.e("# Attach keyboard: ", ex.getMessage());
           }
@@ -211,4 +221,108 @@ public class RnKeyboardModule extends ReactContextBaseJavaModule {
     });
   }
 
+  @RequiresApi(Build.VERSION_CODES.DONUT)
+  @ReactMethod
+  public void detach(
+    final int inputId,
+    Promise promise
+  ) {
+    UiThreadUtil.runOnUiThread(() -> {
+      final ReactEditText input = (ReactEditText) getViewById(inputId);
+      if (input == null) {
+        promise.reject("Error", "Unable to detach input with id = "+ inputId);
+        return;
+      }
+
+      input.setTag(TAG_ID, null);
+      promise.resolve("success");
+    });
+  }
+
+  @RequiresApi(Build.VERSION_CODES.DONUT)
+  @ReactMethod
+  public void insert(
+    final int inputId,
+    final String text,
+    Promise promise
+  ) {
+    UiThreadUtil.runOnUiThread(() -> {
+        final ReactEditText editText = (ReactEditText) getViewById(inputId);
+        if (editText == null) {
+          promise.reject("Error", "Cannot insert '" + text +"' to input with id = " +inputId);
+          return;
+        }
+
+        int start = Math.max(editText.getSelectionStart(), 0);
+        int end = Math.max(editText.getSelectionEnd(), 0);
+
+        editText.getText().replace(
+          Math.min(start, end),
+          Math.max(start, end),
+          text,
+          0,
+          text.length()
+        );
+        promise.resolve("success");
+    });
+  }
+
+  @RequiresApi(Build.VERSION_CODES.DONUT)
+  @ReactMethod
+  public void submit(
+    final int inputId,
+    Promise promise
+  ) {
+    UiThreadUtil.runOnUiThread(() -> {
+      final ReactEditText input = (ReactEditText) getViewById(inputId);
+
+      if (input == null) {
+        promise.reject("Error", "Cannot submit input with id = "+inputId);
+        return;
+      }
+
+      View keyboard = (View) input.getTag(TAG_ID);
+
+      Log.d("#removeKeyboard", String.valueOf("Remove id = "+ keyboard.getParent() != null));
+      if (keyboard.getParent() != null) {
+        ((ViewGroup) keyboard.getParent()).removeView(keyboard);
+      }
+
+      ReactContext context = UIManagerHelper.getReactContext(input);
+      EventDispatcher inputEventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, input.getId());
+      inputEventDispatcher.dispatchEvent(
+        new SubmitEvent(input.getId(), input.getText().toString())
+      );
+      boolean isBlurOnSubmit = input.getBlurOnSubmit();
+      if (isBlurOnSubmit) {
+        input.clearFocus();
+      }
+      promise.resolve(null);
+    });
+  }
+
+  @RequiresApi(Build.VERSION_CODES.DONUT)
+  @ReactMethod
+  public void backspace(
+    final int inputId,
+    Promise promise
+  ) {
+    UiThreadUtil.runOnUiThread(() -> {
+      final ReactEditText editText = (ReactEditText) getViewById(inputId);
+
+      if (editText == null) {
+        promise.reject("Error", "Cannot backspace input with id = " + inputId);
+        return;
+      }
+
+      int start = Math.max(editText.getSelectionStart(), 0);
+      int end = Math.max(editText.getSelectionEnd(), 0);
+
+      Log.d("#Remove text", "Remove input text at: start = " + start + "; end = "+ end);
+
+      if (start != end) { editText.getText().delete(start, end); }
+        else if (start > 0) { editText.getText().delete(start - 1, end); }
+        promise.resolve(null);
+    });
+  }
 }

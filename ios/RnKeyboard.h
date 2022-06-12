@@ -1,5 +1,8 @@
-#import <React/RCTBridgeModule.h>
+#if __has_include(<React/RCTEventEmitter.h>)
+#import <React/RCTEventEmitter.h>
+#else
+#import "RCTEventEmitter.h"
+#endif
 
-@interface RnKeyboard : NSObject <RCTBridgeModule>
-
+@interface RnKeyboard : RCTEventEmitter
 @end

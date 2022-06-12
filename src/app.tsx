@@ -18,7 +18,7 @@ class RnKeyboardApp extends React.Component<{}, KeyboardState> {
   componentDidMount = async () => {
     this.eventListener = RnKeyboardModule.addListener(
       'RnKeyboardShow',
-      (info) => {
+      (info: { inputId: number }) => {
         const keyboardType = RnKeyboardManager.get(info.inputId);
         this.setState((state) => ({ ...state, keyboardType }));
       }

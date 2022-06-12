@@ -4,6 +4,7 @@ import RnKeyboardApp from './app';
 import * as Manager from './manager';
 import * as RnKeyboardModule from './module';
 import RnKeyboardInput from './input';
+import RnKeyboardSpacer from './spacer';
 
 export const registerKeyboard = Manager.registerKeyboard;
 export const registerComponent = () =>
@@ -25,9 +26,18 @@ export const connect = (App: React.ElementType) => (props: {}) => {
 };
 export { RnKeyboardInput };
 
-export default {
+const RnKeyboard = {
   registerKeyboard,
   registerComponent,
   connect,
   Input: RnKeyboardInput,
+  Spacer: RnKeyboardSpacer,
+  // actions -----------------
+  insert: RnKeyboardModule.insert,
+  submit: RnKeyboardModule.submit,
+  backspace: RnKeyboardModule.backspace,
+  // listeners to keyboard show/hide event -----------------
+  addListener: RnKeyboardModule.addListener,
+  getFocusId: Manager.getFocusId,
 };
+export default RnKeyboard;
