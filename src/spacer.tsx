@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
+import * as RnKeyboardManager from './manager';
 import * as RnKeyboardModule from './module';
 
 const RnKeyboardSpacer = () => {
   const [height, setHeight] = useState(0);
 
   useEffect(() => {
-    const rnKeyboardShowListener = RnKeyboardModule.addListener(
+    const keyboardShowEmitter = RnKeyboardManager.addListener(
       'RnKeyboardShow',
       () => setHeight(RnKeyboardModule.RN_KEYBOARD_HEIGHT)
     );
-    const rnKeyboardHideListener = RnKeyboardModule.addListener(
+    const keyboardHideEmitter = RnKeyboardManager.addListener(
       'RnKeyboardHide',
       () => setHeight(0)
     );
     return () => {
-      rnKeyboardShowListener.remove();
-      rnKeyboardHideListener.remove();
+      keyboardShowEmitter.remove();
+      keyboardHideEmitter.remove();
     };
   }, []);
 

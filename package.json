@@ -40,13 +40,13 @@
     "input",
     "numeric"
   ],
-  "repository": "https://github.com/datnhemployee/rn-keyboard",
+  "repository": "https://github.com/datnhemployee/rn-keyboard.git",
   "author": "Dat Nguyen <oodatnhoemployeeoo@gmail.com> (https://github.com/datnhemployee)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/datnhemployee/rn-keyboard/issues"
   },
-  "homepage": "https://github.com/datnhemployee/rn-keyboard#readme",
+  "homepage": "https://github.com/datnhemployee/rn-keyboard",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

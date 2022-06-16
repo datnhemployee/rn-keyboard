@@ -78,8 +78,7 @@ RCT_EXPORT_METHOD(attach:(nonnull NSNumber*)inputId
 {
   @try {
     UIView<RCTBackedTextInputViewProtocol> *backTextInput = [self getBackedTextInput:inputId];
-    
-    backTextInput.inputView = [self getRnKeyboard];
+    [backTextInput setInputView:[self getRnKeyboard]];
     [backTextInput reloadInputViews];
     
     resolve(@"Success");

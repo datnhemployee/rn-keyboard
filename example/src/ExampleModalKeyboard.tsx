@@ -3,6 +3,7 @@ import {
   findNodeHandle,
   Modal,
   ModalProps,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -32,6 +33,7 @@ const ModalWithRnKeyboardInput: React.FunctionComponent<ModalProps> = (
     <Modal ref={modalRef} {...props} onShow={onShow}>
       {/** @todo Issue#1: Weird UI when add margin to modalView */}
       <View ref={viewRef} style={styles.modalView}>
+        <SafeAreaView />
         {/** TITLE */}
         <Text style={styles.modalTitle}>ExampleModalKeyboard: Modal</Text>
 
@@ -49,12 +51,14 @@ const ModalWithRnKeyboardInput: React.FunctionComponent<ModalProps> = (
         />
 
         {/** BUTTON CLOSE */}
-        <TouchableOpacity
-          style={styles.modalButtonClose}
-          onPress={props?.onRequestClose}
-        >
-          <Text style={styles.modalTextClose}>Close</Text>
-        </TouchableOpacity>
+        <SafeAreaView style={styles.modalHeader}>
+          <TouchableOpacity
+            style={styles.modalButtonClose}
+            onPress={props?.onRequestClose}
+          >
+            <Text style={styles.modalTextClose}>Close</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
       </View>
     </Modal>
   );
@@ -118,12 +122,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginTop: 32,
   },
-  modalButtonClose: {
+  modalHeader: {
     position: 'absolute',
     top: 0,
     right: 0,
-    marginRight: 16,
     marginTop: 16,
+  },
+  modalButtonClose: {
+    marginRight: 16,
     height: 32,
     padding: 4,
     borderRadius: 4,

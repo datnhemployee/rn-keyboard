@@ -23,12 +23,9 @@ const buttonList = (() => {
 })();
 
 const RnKeyboardNumeric = () => {
-  // const [inputId, setInputId] = React.useState(-1);
-
   const insert = (type: string) => async () => {
     try {
       const inputId = RnKeyboard.getFocusId();
-      console.log('inputId', inputId);
       switch (type) {
         case 'Backspace':
           await RnKeyboard.backspace(inputId);
@@ -45,27 +42,6 @@ const RnKeyboardNumeric = () => {
       /** @todo handle error here */
     }
   };
-
-  // React.useEffect(() => {
-  //   const rnKeyboardShowListener = RnKeyboard.addListener(
-  //     'RnKeyboardShow',
-  //     (info) => {
-  //       console.log('RnKeyboardShow', info);
-  //       setInputId(info.inputId);
-  //     }
-  //   );
-  //   const rnKeyboardHideListener = RnKeyboard.addListener(
-  //     'RnKeyboardHide',
-  //     (info) => {
-  //       console.log('RnKeyboardHide', info);
-  //       setInputId(-1);
-  //     }
-  //   );
-  //   return () => {
-  //     rnKeyboardShowListener.remove();
-  //     rnKeyboardHideListener.remove();
-  //   };
-  // }, []);
 
   return (
     <View style={styles.container}>
@@ -92,7 +68,7 @@ RnKeyboardNumeric.TYPE = 'RnKeyboardNumeric';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2c3e50',
+    backgroundColor: '#bdc3c7',
     paddingVertical: 16,
   },
   row: {
@@ -115,7 +91,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#ecf0f1',
-    fontSize: 32,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

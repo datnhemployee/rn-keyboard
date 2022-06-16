@@ -1,33 +1,32 @@
 import React from 'react';
-import type { EmitterSubscription } from 'react-native';
 import * as RnKeyboardManager from './manager';
-import * as RnKeyboardModule from './module';
 
 type KeyboardState = {
   keyboardType: string;
 };
 
 class RnKeyboardApp extends React.Component<{}, KeyboardState> {
-  eventListener: EmitterSubscription | undefined;
+  keyboardShowEmitter: { remove: () => void } | null;
 
   constructor(props: {}) {
     super(props);
     this.state = { keyboardType: '' };
+    this.keyboardShowEmitter = null;
   }
 
   componentDidMount = async () => {
-    this.eventListener = RnKeyboardModule.addListener(
+    this.keyboardShowEmitter = RnKeyboardManager.addListener(
       'RnKeyboardShow',
-      (info: { inputId: number }) => {
-        const keyboardType = RnKeyboardManager.get(info.inputId);
+      (inputId) => {
+        const keyboardType = RnKeyboardManager.get(inputId);
         this.setState((state) => ({ ...state, keyboardType }));
       }
     );
   };
 
   componentWillUnmount = () => {
-    if (!this.eventListener?.remove) return;
-    this.eventListener.remove();
+    if (!this.keyboardShowEmitter?.remove) return;
+    this.keyboardShowEmitter.remove();
   };
 
   render = () => {

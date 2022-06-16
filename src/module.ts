@@ -1,6 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
 import * as Manager from './manager';
-import { EmitterSubscription, NativeEventEmitter } from 'react-native';
 
 const RnKeyboard = NativeModules.RnKeyboard;
 export const RN_KEYBOARD_HEIGHT = 216;
@@ -9,11 +8,11 @@ export const RN_KEYBOARD_HEIGHT = 216;
  * Middlewares
  *************************/
 
-const applyAsyncMiddlewares = <AsyncFunc, AppliedFunc extends AsyncFunc>(
-  func: AsyncFunc,
-  middlewares: ((func: AsyncFunc) => AppliedFunc)[]
-): AppliedFunc | AsyncFunc => {
-  let appliedFunc: AsyncFunc | null = null;
+const applyMiddlewares = <Func>(
+  func: Func,
+  middlewares: ((func: Func) => Func)[]
+): Func => {
+  let appliedFunc: Func | null = null;
 
   middlewares.forEach((middleware) => {
     if (!appliedFunc) {
@@ -38,25 +37,16 @@ const applyRequireInputId =
   };
 
 const applyPlatformAsync =
-  (supportedOSList: typeof Platform['OS'][]) =>
+  (supportedOSList: typeof Platform['OS'][], actionName: string) =>
   (asyncHandler: (...args: any[]) => Promise<any>) =>
   async (...args: any[]) => {
     if (!supportedOSList.includes(Platform.OS)) {
-      console.error(`#RnKeyboard: Unable to support ${Platform.OS} Platform`);
+      console.log(
+        `#RnKeyboard-warning: Unable to support RnKeyboard.${actionName} in ${Platform.OS} Platform`
+      );
       return;
     }
     return await asyncHandler(...args);
-  };
-
-const applyPlatformSync =
-  (supportedOSList: typeof Platform['OS'][]) =>
-  (asyncHandler: (...args: any[]) => any) =>
-  (...args: any[]) => {
-    if (!supportedOSList.includes(Platform.OS)) {
-      console.error(`#RnKeyboard: Unable to support ${Platform.OS} Platform`);
-      return;
-    }
-    return asyncHandler(...args);
   };
 
 const applyCatchNativeException =
@@ -73,14 +63,15 @@ const applyCatchNativeException =
  * Module
  *************************/
 
-export const init = applyPlatformAsync(['android'])(
+export const init = applyMiddlewares(
   async (height: number = RN_KEYBOARD_HEIGHT): Promise<any> => {
     return await RnKeyboard.init(height);
-  }
+  },
+  [applyPlatformAsync(['android'], 'init')]
 );
 
 /** @todo handle multiple keyboard types */
-export const attach = applyAsyncMiddlewares(
+export const attach = applyMiddlewares(
   async (
     inputId: number,
     keyboardType: string,
@@ -96,48 +87,37 @@ export const attach = applyAsyncMiddlewares(
     Manager.set(inputId, keyboardType);
   },
   [
-    applyPlatformAsync(['android', 'ios']),
+    applyPlatformAsync(['android', 'ios'], 'attach'),
     applyCatchNativeException,
     applyRequireInputId,
   ]
 );
 
-export const detach = applyAsyncMiddlewares(
+export const detach = applyMiddlewares(
   async (inputId: number) => {
     await RnKeyboard.detach(inputId);
     Manager.remove(inputId);
   },
   [
-    applyPlatformAsync(['android', 'ios']),
+    applyPlatformAsync(['android', 'ios'], 'detach'),
     applyCatchNativeException,
     applyRequireInputId,
   ]
 );
 
-export const insert = applyAsyncMiddlewares(
+export const insert = applyMiddlewares(
   async (inputId: number, key: string) => await RnKeyboard.insert(inputId, key),
-  [applyPlatformAsync(['android', 'ios']), applyRequireInputId]
+  [applyPlatformAsync(['android', 'ios'], 'insert'), applyRequireInputId]
 );
 
-export const submit = applyAsyncMiddlewares(
+export const submit = applyMiddlewares(
   async (inputId: number) => await RnKeyboard.submit(inputId),
-  [applyPlatformAsync(['android', 'ios']), applyRequireInputId]
+  [applyPlatformAsync(['android', 'ios'], 'submit'), applyRequireInputId]
 );
 
-export const backspace = applyAsyncMiddlewares(
+export const backspace = applyMiddlewares(
   async (inputId: number) => await RnKeyboard.backspace(inputId),
-  [applyPlatformAsync(['android', 'ios']), applyRequireInputId]
-);
-
-export const addListener = applyPlatformSync(['android'])(
-  (
-    eventName: RnKeyboardEventType,
-    callback: (info: RnKeyboardEventInfo) => void
-  ) => {
-    const keyboardEventEmitter = new RnKeyboardEventEmitter(RnKeyboard);
-    const eventListener = keyboardEventEmitter.addListener(eventName, callback);
-    return eventListener;
-  }
+  [applyPlatformAsync(['android', 'ios'], 'backspace'), applyRequireInputId]
 );
 
 /************************
@@ -145,16 +125,6 @@ export const addListener = applyPlatformSync(['android'])(
  *************************/
 
 export type RnKeyboardEventType = 'RnKeyboardShow' | 'RnKeyboardHide';
-
-export class RnKeyboardEventEmitter extends NativeEventEmitter {
-  addListener(
-    eventType: RnKeyboardEventType,
-    listener: (...args: any[]) => any,
-    context?: any
-  ): EmitterSubscription {
-    return super.addListener(eventType as string, listener, context);
-  }
-}
 
 export type RnKeyboardEventInfo = {
   inputId: number;

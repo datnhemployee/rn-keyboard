@@ -37,7 +37,8 @@ const RnKeyboard = {
   submit: RnKeyboardModule.submit,
   backspace: RnKeyboardModule.backspace,
   // listeners to keyboard show/hide event -----------------
-  addListener: RnKeyboardModule.addListener,
+  addListener: Manager.addListener,
+  emit: Manager.emit,
   getFocusId: Manager.getFocusId,
 };
 export default RnKeyboard;

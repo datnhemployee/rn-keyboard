@@ -23,20 +23,30 @@ type RnInputProps = TextInputProps & {
   modalInfo?: { viewId: number | null; modalId: number | null };
 };
 
+/**
+ * Warning:
+ * - `showSoftInputOnFocus` is reserved so it shall not have any effects.
+ */
 const RnInput = forwardRef<RnInputHandler, RnInputProps>((props, ref) => {
   const [refInput, setRefInput] = React.useState(null);
 
-  const onFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-    if (refInput && Platform.OS === 'ios') {
-      const inputId = findNodeHandle(refInput);
-      if (inputId) {
-        RnKeyboardManager.setFocusId(inputId);
+  const onFocusEvent =
+    (type: 'focus' | 'blur') =>
+    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      if (refInput) {
+        const inputId = findNodeHandle(refInput);
+        if (!inputId) return;
+        RnKeyboardManager.setFocusId(inputId, type === 'focus');
+        RnKeyboardManager.emit(
+          type === 'focus' ? 'RnKeyboardShow' : 'RnKeyboardHide',
+          inputId
+        );
       }
-    }
 
-    if (!props.onFocus) return;
-    props.onFocus(e);
-  };
+      const callback = type === 'focus' ? props.onFocus : props.onBlur;
+      if (!callback) return;
+      callback(e);
+    };
 
   React.useEffect(() => {
     (async () => {
@@ -62,8 +72,8 @@ const RnInput = forwardRef<RnInputHandler, RnInputProps>((props, ref) => {
       /**
        * @todo Refactor this to improve performance
        * Keyboard need first time showing up to get inputId */
-      // (refInput as { focus: () => void }).focus();
-      // (refInput as { blur: () => void }).blur();
+      (refInput as { focus: () => void }).focus();
+      (refInput as { blur: () => void }).blur();
     })();
 
     return () => {
@@ -81,8 +91,9 @@ const RnInput = forwardRef<RnInputHandler, RnInputProps>((props, ref) => {
     <TextInput
       ref={setRefInput as React.LegacyRef<TextInput>}
       {...props}
-      onFocus={onFocus}
-      showSoftInputOnFocus={false}
+      onFocus={onFocusEvent('focus')}
+      onBlur={onFocusEvent('blur')}
+      {...(Platform.OS === 'android' ? { showSoftInputOnFocus: false } : {})}
     />
   );
 });
