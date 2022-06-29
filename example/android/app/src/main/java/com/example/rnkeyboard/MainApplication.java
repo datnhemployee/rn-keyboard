@@ -27,7 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for RnKeyboardExample:
           // packages.add(new MyReactNativePackage());
-          packages.add(new RnKeyboardPackage());
+//          packages.add(new RnKeyboardPackage());
           return packages;
         }
 

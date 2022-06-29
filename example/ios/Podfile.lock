@@ -267,7 +267,7 @@ PODS:
     - React-cxxreact (= 0.64.0)
     - React-jsi (= 0.64.0)
     - React-perflogger (= 0.64.0)
-  - rn-keyboard (0.1.0):
+  - rn-keyboard (1.0.0):
     - React-Core
   - Yoga (1.14.0)
 
@@ -372,7 +372,7 @@ SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 49cbe4b43e445b06bf29199b6ad2057649e4c8f5
-  FBReactNativeSpec: 9213bd8b754e81bcaa11e4a65d5dc124a23b93dc
+  FBReactNativeSpec: 4a6da0db378539a8f2b74fcb3b22ffb0683710e7
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: 2f8cb5b7533219bf4218a045f92768129cf7050a
@@ -397,9 +397,9 @@ SPEC CHECKSUMS:
   React-RCTVibration: 0fd6b21751a33cb72fce1a4a33ab9678416d307a
   React-runtimeexecutor: cad74a1eaa53ee6e7a3620231939d8fe2c6afcf0
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
-  rn-keyboard: df0cec648e023b197726b609b920787bacd78839
+  rn-keyboard: 7dde83e2df5ee1451ce3e424cc9051bc4f89b706
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
 
 PODFILE CHECKSUM: 0e176ac5c176af5d0d0b15170f720742b3da8e57
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.11.2
